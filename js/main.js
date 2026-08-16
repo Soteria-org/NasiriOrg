@@ -150,6 +150,57 @@
   });
 
   /* ---------------------------------------------------------
+     Carousel arrow controls (native scroll-snap does the rest)
+  --------------------------------------------------------- */
+  document.querySelectorAll("[data-carousel]").forEach((wrap) => {
+    const track = wrap.querySelector(".carousel");
+    const prev = wrap.querySelector("[data-carousel-prev]");
+    const next = wrap.querySelector("[data-carousel-next]");
+    if (!track) return;
+    const scrollByCard = (dir) => {
+      const card = track.querySelector(".carousel__item");
+      const gap = parseFloat(getComputedStyle(track).gap || "0");
+      const amount = card ? card.getBoundingClientRect().width + gap : track.clientWidth * 0.8;
+      track.scrollBy({ left: dir * amount, behavior: "smooth" });
+    };
+    prev && prev.addEventListener("click", () => scrollByCard(-1));
+    next && next.addEventListener("click", () => scrollByCard(1));
+  });
+
+  /* ---------------------------------------------------------
+     Video feature: muted/looping, play only when JS + motion
+     preference allow it; always offer a manual toggle.
+  --------------------------------------------------------- */
+  const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  document.querySelectorAll("[data-video-feature]").forEach((wrap) => {
+    const video = wrap.querySelector("video");
+    const toggle = wrap.querySelector("[data-video-toggle]");
+    if (!video) return;
+
+    const setPlaying = (playing) => {
+      wrap.classList.toggle("is-playing", playing);
+      toggle && toggle.setAttribute("aria-label", playing ? "Pause video" : "Play video");
+    };
+
+    if (!reduceMotion) {
+      video.play().then(() => setPlaying(true)).catch(() => setPlaying(false));
+    } else {
+      setPlaying(false);
+    }
+
+    toggle &&
+      toggle.addEventListener("click", () => {
+        if (video.paused) {
+          video.play();
+          setPlaying(true);
+        } else {
+          video.pause();
+          setPlaying(false);
+        }
+      });
+  });
+
+  /* ---------------------------------------------------------
      Footer year
   --------------------------------------------------------- */
   document.querySelectorAll("[data-year]").forEach((el) => {

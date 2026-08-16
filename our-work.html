@@ -6,6 +6,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Our Work — Nasiri Orphanage Center</title>
   <meta name="description" content="How Nasiri creates impact: Safe Homes, Education, Health & Wellbeing, and Community Support.">
+  <meta property="og:image" content="assets/img/og-cover.jpg">
   <link rel="icon" type="image/svg+xml" href="assets/brand/favicon.svg">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -55,7 +56,7 @@
     <section class="section">
       <div class="wrap grid grid--2" style="align-items:center;">
         <div class="hero__art" data-reveal style="aspect-ratio:1/1;">
-          <div class="placeholder-figure"><svg class="icon" aria-hidden="true" style="width:96px;height:96px;color:var(--sage-500);"><use href="assets/icons/icons.svg#icon-home"></use></svg></div>
+          <img src="assets/img/community-group-1-md.webp" srcset="assets/img/community-group-1-sm.webp 480w, assets/img/community-group-1-md.webp 900w, assets/img/community-group-1-lg.webp 1600w" sizes="(max-width: 768px) 90vw, 480px" alt="Children together at a Nasiri home" loading="lazy" decoding="async" style="width:100%;height:100%;object-fit:cover;">
         </div>
         <div data-reveal>
           <span class="icon-badge"><svg class="icon" aria-hidden="true"><use href="assets/icons/icons.svg#icon-home"></use></svg></span>
@@ -74,7 +75,7 @@
           <p>Cover school fees, uniforms, books, and mentorship so every child can learn and succeed.</p>
         </div>
         <div class="hero__art" data-reveal style="aspect-ratio:1/1; order:1;">
-          <div class="placeholder-figure"><svg class="icon" aria-hidden="true" style="width:96px;height:96px;color:var(--sage-500);"><use href="assets/icons/icons.svg#icon-education"></use></svg></div>
+          <img src="assets/img/education-notebook-md.webp" srcset="assets/img/education-notebook-sm.webp 480w, assets/img/education-notebook-md.webp 900w, assets/img/education-notebook-lg.webp 1600w" sizes="(max-width: 768px) 90vw, 480px" alt="A child writing in a notebook outdoors" loading="lazy" decoding="async" style="width:100%;height:100%;object-fit:cover;">
         </div>
       </div>
     </section>
@@ -83,7 +84,7 @@
     <section class="section">
       <div class="wrap grid grid--2" style="align-items:center;">
         <div class="hero__art" data-reveal style="aspect-ratio:1/1;">
-          <div class="placeholder-figure"><svg class="icon" aria-hidden="true" style="width:96px;height:96px;color:var(--sage-500);"><use href="assets/icons/icons.svg#icon-health"></use></svg></div>
+          <img src="assets/img/mealtime-fork-md.webp" srcset="assets/img/mealtime-fork-sm.webp 480w, assets/img/mealtime-fork-md.webp 900w, assets/img/mealtime-fork-lg.webp 1600w" sizes="(max-width: 768px) 90vw, 480px" alt="A child enjoying a meal" loading="lazy" decoding="async" style="width:100%;height:100%;object-fit:cover;">
         </div>
         <div data-reveal>
           <span class="icon-badge"><svg class="icon" aria-hidden="true"><use href="assets/icons/icons.svg#icon-health"></use></svg></span>
@@ -101,8 +102,15 @@
           <h2>Community Support</h2>
           <p>Help vulnerable families stay together by providing income training, school support, and emergency aid.</p>
         </div>
-        <div class="hero__art" data-reveal style="aspect-ratio:1/1; order:1;">
-          <div class="placeholder-figure"><svg class="icon" aria-hidden="true" style="width:96px;height:96px;color:var(--sage-500);"><use href="assets/icons/icons.svg#icon-community"></use></svg></div>
+        <div class="video-feature" data-video-feature data-reveal style="aspect-ratio:1/1; order:1;">
+          <video poster="assets/video/poster-package.webp" muted loop playsinline preload="metadata">
+            <source src="assets/video/supply-distribution.webm" type="video/webm">
+            <source src="assets/video/supply-distribution.mp4" type="video/mp4">
+          </video>
+          <button class="video-feature__toggle" data-video-toggle aria-label="Play video">
+            <svg class="icon icon-play" aria-hidden="true"><use href="assets/icons/icons.svg#icon-play"></use></svg>
+            <svg class="icon icon-pause" aria-hidden="true"><use href="assets/icons/icons.svg#icon-pause"></use></svg>
+          </button>
         </div>
       </div>
     </section>
@@ -117,7 +125,7 @@
         </div>
         <div class="grid grid--3" data-reveal-group>
           <div class="media-card" data-reveal>
-            <div class="media-card__figure"><div class="placeholder-figure"><svg class="icon" aria-hidden="true"><use href="assets/icons/icons.svg#icon-home"></use></svg></div></div>
+            <div class="media-card__figure"><img src="assets/img/community-group-2-md.webp" srcset="assets/img/community-group-2-sm.webp 480w, assets/img/community-group-2-md.webp 900w, assets/img/community-group-2-lg.webp 1600w" sizes="(max-width: 768px) 90vw, 480px" alt="Children together at Nasiri" loading="lazy" decoding="async"></div>
             <div class="media-card__body">
               <span class="media-card__meta">Pending</span>
               <h3>Project details coming soon</h3>
@@ -125,7 +133,7 @@
             </div>
           </div>
           <div class="media-card" data-reveal>
-            <div class="media-card__figure"><div class="placeholder-figure"><svg class="icon" aria-hidden="true"><use href="assets/icons/icons.svg#icon-education"></use></svg></div></div>
+            <div class="media-card__figure"><img src="assets/img/children-playing-game-md.webp" srcset="assets/img/children-playing-game-sm.webp 480w, assets/img/children-playing-game-md.webp 900w, assets/img/children-playing-game-lg.webp 1600w" sizes="(max-width: 768px) 90vw, 480px" alt="Children playing together" loading="lazy" decoding="async"></div>
             <div class="media-card__body">
               <span class="media-card__meta">Pending</span>
               <h3>Project details coming soon</h3>
@@ -133,7 +141,7 @@
             </div>
           </div>
           <div class="media-card" data-reveal>
-            <div class="media-card__figure"><div class="placeholder-figure"><svg class="icon" aria-hidden="true"><use href="assets/icons/icons.svg#icon-health"></use></svg></div></div>
+            <div class="media-card__figure"><img src="assets/img/community-gathering-md.webp" srcset="assets/img/community-gathering-sm.webp 480w, assets/img/community-gathering-md.webp 900w, assets/img/community-gathering-lg.webp 1600w" sizes="(max-width: 768px) 90vw, 480px" alt="Children gathered together outdoors" loading="lazy" decoding="async"></div>
             <div class="media-card__body">
               <span class="media-card__meta">Pending</span>
               <h3>Project details coming soon</h3>
