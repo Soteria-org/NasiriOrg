@@ -150,21 +150,102 @@
   });
 
   /* ---------------------------------------------------------
-     Carousel arrow controls (native scroll-snap does the rest)
+     Polaroid Shuffle carousel — an automatic, clickable fan of
+     photos. Each item's position is expressed as an offset from
+     the active index (wrapping both directions); JS computes a
+     transform from that offset and writes it inline, since the
+     math (variable rotation/scale/opacity per offset) is awkward
+     to express as a fixed set of CSS classes.
   --------------------------------------------------------- */
-  document.querySelectorAll("[data-carousel]").forEach((wrap) => {
-    const track = wrap.querySelector(".carousel");
-    const prev = wrap.querySelector("[data-carousel-prev]");
-    const next = wrap.querySelector("[data-carousel-next]");
-    if (!track) return;
-    const scrollByCard = (dir) => {
-      const card = track.querySelector(".carousel__item");
-      const gap = parseFloat(getComputedStyle(track).gap || "0");
-      const amount = card ? card.getBoundingClientRect().width + gap : track.clientWidth * 0.8;
-      track.scrollBy({ left: dir * amount, behavior: "smooth" });
-    };
-    prev && prev.addEventListener("click", () => scrollByCard(-1));
-    next && next.addEventListener("click", () => scrollByCard(1));
+  const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  document.querySelectorAll("[data-polaroid-carousel]").forEach((root) => {
+    const stage = root.querySelector("[data-polaroid-stage]");
+    const items = Array.from(root.querySelectorAll(".polaroid"));
+    const dotsWrap = root.querySelector("[data-polaroid-dots]");
+    const prevBtn = root.querySelector("[data-polaroid-prev]");
+    const nextBtn = root.querySelector("[data-polaroid-next]");
+    if (!stage || !items.length) return;
+
+    const n = items.length;
+    let active = 0;
+    let timer = null;
+
+    const dots = items.map((_, i) => {
+      const dot = document.createElement("button");
+      dot.type = "button";
+      dot.setAttribute("aria-label", `Show photo ${i + 1} of ${n}`);
+      dot.addEventListener("click", () => goTo(i));
+      dotsWrap && dotsWrap.appendChild(dot);
+      return dot;
+    });
+
+    function layout() {
+      items.forEach((el, i) => {
+        let offset = i - active;
+        if (offset > n / 2) offset -= n;
+        if (offset < -n / 2) offset += n;
+        const abs = Math.abs(offset);
+        const visible = abs <= 3;
+        const x = offset * 96;
+        const y = abs * 16;
+        const rot = offset * 7;
+        const scale = Math.max(1 - abs * 0.13, 0.42);
+        const opacity = visible ? Math.max(1 - abs * 0.3, 0) : 0;
+        el.style.transform = `translate(-50%, -50%) translate(${x}px, ${y}px) rotate(${rot}deg) scale(${scale})`;
+        el.style.zIndex = String(100 - abs);
+        el.style.opacity = String(opacity);
+        el.style.pointerEvents = visible ? "auto" : "none";
+        const isActive = offset === 0;
+        el.classList.toggle("is-active", isActive);
+        el.setAttribute("aria-hidden", isActive ? "false" : "true");
+        el.tabIndex = isActive ? 0 : -1;
+      });
+      dots.forEach((d, i) => d.classList.toggle("is-active", i === active));
+    }
+
+    function goTo(index) {
+      active = ((index % n) + n) % n;
+      layout();
+    }
+
+    function next() { goTo(active + 1); }
+    function prev() { goTo(active - 1); }
+
+    function start() {
+      if (prefersReducedMotion) return;
+      stop();
+      timer = setInterval(next, 4200);
+    }
+    function stop() {
+      if (timer) clearInterval(timer);
+      timer = null;
+    }
+
+    items.forEach((el, i) => {
+      el.addEventListener("click", () => {
+        if (i === active) return;
+        goTo(i);
+        stop();
+        start();
+      });
+    });
+    prevBtn && prevBtn.addEventListener("click", () => { prev(); stop(); start(); });
+    nextBtn && nextBtn.addEventListener("click", () => { next(); stop(); start(); });
+
+    stage.addEventListener("keydown", (e) => {
+      if (e.key === "ArrowRight") { next(); stop(); start(); }
+      if (e.key === "ArrowLeft") { prev(); stop(); start(); }
+    });
+
+    stage.addEventListener("mouseenter", stop);
+    stage.addEventListener("mouseleave", start);
+    stage.addEventListener("focusin", stop);
+    stage.addEventListener("focusout", start);
+    stage.addEventListener("touchstart", stop, { passive: true });
+
+    layout();
+    start();
   });
 
   /* ---------------------------------------------------------

@@ -15,8 +15,10 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="css/styles.css">
+  <link rel="preload" as="image" href="assets/img/bg/bg-home-lg.webp" fetchpriority="high">
 </head>
 <body>
+  <div class="page-bg" style="background-image:url('assets/img/bg/bg-home-lg.webp')" aria-hidden="true"></div>
   <a class="skip-link" href="#main">Skip to content</a>
 
   <header class="site-header">
@@ -67,7 +69,7 @@
         </div>
 
         <div class="hero__art" data-reveal>
-          <img src="assets/img/hope-raised-hands-md.webp" srcset="assets/img/hope-raised-hands-sm.webp 480w, assets/img/hope-raised-hands-md.webp 900w, assets/img/hope-raised-hands-lg.webp 1600w" sizes="(max-width: 768px) 90vw, 480px" alt="Children at Nasiri joyfully raising their hands outdoors" width="768" height="1020" loading="eager" style="width:100%;height:100%;object-fit:cover;">
+          <img src="assets/img/hope-raised-hands-md.webp" srcset="assets/img/hope-raised-hands-sm.webp 480w, assets/img/hope-raised-hands-md.webp 900w" sizes="(max-width: 900px) 88vw, 500px" alt="Children at Nasiri joyfully raising their hands outdoors" width="768" height="1020" loading="eager" fetchpriority="high" style="width:100%;height:100%;object-fit:cover;">
           <div class="hero__badge">
             <span class="icon-badge icon-badge--accent">
               <svg class="icon" aria-hidden="true"><use href="assets/icons/icons.svg#icon-heart"></use></svg>
@@ -213,53 +215,67 @@
       </div>
     </section>
 
-    <!-- GALLERY -->
+    <!-- GALLERY: Polaroid Shuffle -->
     <section class="section section--tight">
       <div class="wrap">
-        <div class="section-head" data-reveal>
+        <div class="section-head center" data-reveal>
           <span class="eyebrow">Gallery</span>
           <h2>Moments from Nasiri</h2>
-          <p class="lede">A glimpse of everyday life — mealtimes, learning, and community.</p>
+          <p class="lede" style="margin-inline:auto;">Shuffle through — mealtimes, learning, play, and community.</p>
         </div>
-        <div class="carousel-wrap" data-carousel data-reveal>
-          <div class="carousel" tabindex="0" aria-label="Photo gallery, scroll to browse">
-            <figure class="carousel__item">
-              <img src="assets/img/hope-raised-hands-md.webp" srcset="assets/img/hope-raised-hands-sm.webp 480w, assets/img/hope-raised-hands-md.webp 900w, assets/img/hope-raised-hands-lg.webp 1600w" sizes="(max-width: 768px) 90vw, 480px" alt="Children joyfully raising their hands" loading="lazy" decoding="async">
-              <figcaption class="carousel__caption">Full of hope</figcaption>
-            </figure>
-            <figure class="carousel__item">
-              <img src="assets/img/community-group-1-md.webp" srcset="assets/img/community-group-1-sm.webp 480w, assets/img/community-group-1-md.webp 900w, assets/img/community-group-1-lg.webp 1600w" sizes="(max-width: 768px) 90vw, 480px" alt="A large group of children together at Nasiri" loading="lazy" decoding="async">
-              <figcaption class="carousel__caption">Our community</figcaption>
-            </figure>
-            <figure class="carousel__item">
-              <img src="assets/img/education-notebook-md.webp" srcset="assets/img/education-notebook-sm.webp 480w, assets/img/education-notebook-md.webp 900w, assets/img/education-notebook-lg.webp 1600w" sizes="(max-width: 768px) 90vw, 480px" alt="A child writing in a notebook outdoors" loading="lazy" decoding="async">
-              <figcaption class="carousel__caption">Learning every day</figcaption>
-            </figure>
-            <figure class="carousel__item">
-              <img src="assets/img/group-mealtime-md.webp" srcset="assets/img/group-mealtime-sm.webp 480w, assets/img/group-mealtime-md.webp 900w, assets/img/group-mealtime-lg.webp 1600w" sizes="(max-width: 768px) 90vw, 480px" alt="Children sharing a meal together outdoors" loading="lazy" decoding="async">
-              <figcaption class="carousel__caption">Sharing a meal</figcaption>
-            </figure>
-            <figure class="carousel__item">
-              <img src="assets/img/children-playing-game-md.webp" srcset="assets/img/children-playing-game-sm.webp 480w, assets/img/children-playing-game-md.webp 900w, assets/img/children-playing-game-lg.webp 1600w" sizes="(max-width: 768px) 90vw, 480px" alt="Children playing a traditional game together" loading="lazy" decoding="async">
-              <figcaption class="carousel__caption">Time to play</figcaption>
-            </figure>
-            <figure class="carousel__item">
-              <img src="assets/img/community-gathering-md.webp" srcset="assets/img/community-gathering-sm.webp 480w, assets/img/community-gathering-md.webp 900w, assets/img/community-gathering-lg.webp 1600w" sizes="(max-width: 768px) 90vw, 480px" alt="Children gathered together outdoors" loading="lazy" decoding="async">
-              <figcaption class="carousel__caption">Together</figcaption>
-            </figure>
-            <figure class="carousel__item">
-              <img src="assets/img/mealtime-fork-md.webp" srcset="assets/img/mealtime-fork-sm.webp 480w, assets/img/mealtime-fork-md.webp 900w, assets/img/mealtime-fork-lg.webp 1600w" sizes="(max-width: 768px) 90vw, 480px" alt="A child enjoying a meal" loading="lazy" decoding="async">
-              <figcaption class="carousel__caption">Nourished</figcaption>
-            </figure>
-          </div>
-          <div class="carousel__controls">
-            <button class="carousel__btn carousel__btn--prev" data-carousel-prev aria-label="Previous photos">
-              <svg class="icon" aria-hidden="true"><use href="assets/icons/icons.svg#icon-arrow-right"></use></svg>
-            </button>
-            <button class="carousel__btn carousel__btn--next" data-carousel-next aria-label="Next photos">
-              <svg class="icon" aria-hidden="true"><use href="assets/icons/icons.svg#icon-arrow-right"></use></svg>
-            </button>
-          </div>
+      </div>
+      <div class="polaroid-carousel" data-polaroid-carousel data-reveal>
+        <div class="polaroid-stage" data-polaroid-stage tabindex="0" role="group" aria-roledescription="carousel" aria-label="Nasiri moments, use arrow keys to browse">
+
+          <button class="polaroid" type="button">
+            <span class="polaroid__photo"><img src="assets/img/hope-raised-hands-sm.webp" srcset="assets/img/hope-raised-hands-sm.webp 480w, assets/img/hope-raised-hands-md.webp 900w" sizes="250px" alt="Children joyfully raising their hands" loading="lazy" decoding="async"></span>
+            <span class="polaroid__caption">Full of hope</span>
+          </button>
+
+          <button class="polaroid" type="button">
+            <span class="polaroid__photo"><img src="assets/img/community-group-1-sm.webp" srcset="assets/img/community-group-1-sm.webp 480w, assets/img/community-group-1-md.webp 900w" sizes="250px" alt="A large group of children together at Nasiri" loading="lazy" decoding="async"></span>
+            <span class="polaroid__caption">Our community</span>
+          </button>
+
+          <button class="polaroid" type="button">
+            <span class="polaroid__photo"><img src="assets/img/education-notebook-sm.webp" srcset="assets/img/education-notebook-sm.webp 480w, assets/img/education-notebook-md.webp 900w" sizes="250px" alt="A child writing in a notebook outdoors" loading="lazy" decoding="async"></span>
+            <span class="polaroid__caption">Learning every day</span>
+          </button>
+
+          <button class="polaroid" type="button">
+            <span class="polaroid__photo"><img src="assets/img/group-mealtime-sm.webp" srcset="assets/img/group-mealtime-sm.webp 480w, assets/img/group-mealtime-md.webp 900w" sizes="250px" alt="Children sharing a meal together outdoors" loading="lazy" decoding="async"></span>
+            <span class="polaroid__caption">Sharing a meal</span>
+          </button>
+
+          <button class="polaroid" type="button">
+            <span class="polaroid__photo"><img src="assets/img/joyful-run-sm.webp" srcset="assets/img/joyful-run-sm.webp 480w, assets/img/joyful-run-md.webp 900w" sizes="250px" alt="A child running joyfully" loading="lazy" decoding="async"></span>
+            <span class="polaroid__caption">Pure joy</span>
+          </button>
+
+          <button class="polaroid" type="button">
+            <span class="polaroid__photo"><img src="assets/img/children-playing-game-sm.webp" srcset="assets/img/children-playing-game-sm.webp 480w, assets/img/children-playing-game-md.webp 900w" sizes="250px" alt="Children playing a traditional game together" loading="lazy" decoding="async"></span>
+            <span class="polaroid__caption">Time to play</span>
+          </button>
+
+          <button class="polaroid" type="button">
+            <span class="polaroid__photo"><img src="assets/img/community-gathering-sm.webp" srcset="assets/img/community-gathering-sm.webp 480w, assets/img/community-gathering-md.webp 900w" sizes="250px" alt="Children gathered together outdoors" loading="lazy" decoding="async"></span>
+            <span class="polaroid__caption">Together</span>
+          </button>
+
+          <button class="polaroid" type="button">
+            <span class="polaroid__photo"><img src="assets/img/mealtime-fork-sm.webp" srcset="assets/img/mealtime-fork-sm.webp 480w, assets/img/mealtime-fork-md.webp 900w" sizes="250px" alt="A child enjoying a meal" loading="lazy" decoding="async"></span>
+            <span class="polaroid__caption">Nourished</span>
+          </button>
+
+        </div>
+        <div class="polaroid-carousel__controls">
+          <button class="carousel__btn carousel__btn--prev" data-polaroid-prev aria-label="Previous photo">
+            <svg class="icon" aria-hidden="true"><use href="assets/icons/icons.svg#icon-arrow-right"></use></svg>
+          </button>
+          <div class="polaroid-dots" data-polaroid-dots></div>
+          <button class="carousel__btn carousel__btn--next" data-polaroid-next aria-label="Next photo">
+            <svg class="icon" aria-hidden="true"><use href="assets/icons/icons.svg#icon-arrow-right"></use></svg>
+          </button>
         </div>
       </div>
     </section>
