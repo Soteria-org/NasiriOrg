@@ -80,12 +80,38 @@
   --shadow-lift: 0 18px 40px rgba(43, 51, 31, 0.14);
 
   --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-cinematic: cubic-bezier(0.22, 1, 0.36, 1);
   --dur-fast: 180ms;
   --dur-med: 420ms;
   --dur-slow: 900ms;
+  --dur-cinematic: 1400ms;
 
   --content-max: 1200px;
+
+  /* ---- Glassmorphism ----
+     Two tiers: "light" glass hosts dark body text (forms, value
+     cards, anything text-heavy) and stays opaque enough to pass
+     contrast checks over any photo. "Dark" glass hosts light text
+     (nav, banners) and stays more translucent. ---- */
+  --glass-light-bg:      rgba(255, 255, 255, 0.82);
+  --glass-light-bg-soft: rgba(255, 255, 255, 0.5);
+  --glass-light-border:  rgba(255, 255, 255, 0.65);
+  --glass-dark-bg:       rgba(30, 36, 24, 0.42);
+  --glass-dark-bg-strong: rgba(24, 29, 19, 0.62);
+  --glass-dark-border:   rgba(255, 255, 255, 0.16);
+  --glass-blur: blur(20px) saturate(160%);
+  --glass-blur-sm: blur(12px) saturate(140%);
+  --shadow-glass: 0 20px 50px rgba(15, 18, 10, 0.28);
 }
+
+/* View Transitions API: cinematic cross-fade between page loads
+   in supporting browsers (Chromium). Pure progressive enhancement —
+   unsupported browsers just navigate normally. */
+@view-transition {
+  navigation: auto;
+}
+::view-transition-old(root) { animation-duration: 420ms; }
+::view-transition-new(root) { animation-duration: 620ms; }
 
 /* ===========================================================
    Reset
@@ -115,24 +141,79 @@ ul, ol { list-style: none; padding: 0; }
    =========================================================== */
 body {
   font-family: var(--font-body);
-  background: var(--color-bg);
+  background: var(--sage-900);
   color: var(--color-text);
   font-size: var(--step-0);
 }
 
+/* ===========================================================
+   Cinematic page background — one fixed, pre-blurred photo per
+   page, sitting behind every section. Content rides on top of it
+   as glass panels (see Glassmorphism below). Pre-blurring the
+   image server-side (rather than a live CSS filter) keeps this
+   layer both cheap to paint and small to download — blurred
+   source images compress dramatically smaller than sharp ones.
+   =========================================================== */
+.page-bg {
+  position: fixed;
+  inset: 0;
+  z-index: -2;
+  /* background-image is set inline per page (a plain url(), not a
+     custom property) — url() values inside a custom property
+     resolve relative to the stylesheet that *reads* them (this
+     file's location), not the HTML document, which 404s the image
+     the moment this file isn't sitting next to /assets/. Setting it
+     as a real inline style resolves correctly against the page. */
+  background-size: cover;
+  background-position: center 22%;
+  background-repeat: no-repeat;
+  opacity: 0;
+  animation: pageBgIn var(--dur-cinematic) var(--ease-cinematic) forwards;
+}
+.page-bg::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(180deg, rgba(20,24,15,0.6) 0%, rgba(20,24,15,0.32) 22%, rgba(20,24,15,0.4) 70%, rgba(15,18,11,0.72) 100%);
+}
+@keyframes pageBgIn {
+  from { opacity: 0; transform: scale(1.04); }
+  to   { opacity: 1; transform: scale(1); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .page-bg { animation: none; opacity: 1; transform: none; }
+}
+
+/* Text sitting directly on the cinematic background (the default,
+   since most headings and ledes float over the photo rather than
+   inside a glass panel) stays light + legible over any photo.
+   Glass-panel components (.card, .method, form fields, etc.)
+   override these back to dark text further down — their higher
+   selector specificity wins the cascade without needing an extra
+   class on every heading in the markup. */
+.breadcrumb { color: var(--sage-200); }
+.breadcrumb a:hover { color: var(--white); }
+
+/* Headings/paragraphs default to riding directly on the cinematic
+   background (light text, soft shadow for legibility over any
+   photo). Glass-panel components override back to dark text —
+   see the Glassmorphism section — since their selectors are more
+   specific and win the cascade. */
 h1, h2, h3, h4 {
   font-family: var(--font-display);
-  color: var(--color-heading);
+  color: var(--white);
   line-height: 1.12;
   font-weight: 400;
   letter-spacing: -0.01em;
+  text-shadow: 0 4px 24px rgba(10, 12, 7, 0.4);
 }
 h1 { font-size: var(--step-5); }
 h2 { font-size: var(--step-4); }
 h3 { font-size: var(--step-2); }
-h4 { font-size: var(--step-1); font-family: var(--font-body); font-weight: 700; }
+h4 { font-size: var(--step-1); font-family: var(--font-body); font-weight: 700; text-shadow: none; }
 
-p { color: var(--color-text-soft); }
+p { color: var(--sage-100); }
 p + p { margin-top: var(--space-sm); }
 
 .eyebrow {
@@ -144,7 +225,7 @@ p + p { margin-top: var(--space-sm); }
   font-size: var(--step--1);
   letter-spacing: 0.14em;
   text-transform: uppercase;
-  color: var(--color-accent-dark);
+  color: var(--amber-400);
   margin-bottom: var(--space-sm);
 }
 .eyebrow::before {
@@ -157,8 +238,9 @@ p + p { margin-top: var(--space-sm); }
 
 .lede {
   font-size: var(--step-1);
-  color: var(--color-text-soft);
+  color: var(--sage-100);
   max-width: 62ch;
+  text-shadow: 0 2px 14px rgba(10, 12, 7, 0.3);
 }
 
 .visually-hidden {
@@ -196,12 +278,21 @@ p + p { margin-top: var(--space-sm); }
   padding-inline: var(--space-md);
 }
 
-.section { padding-block: var(--space-2xl); }
+.section { padding-block: var(--space-2xl); position: relative; }
 .section--tight { padding-block: var(--space-xl); }
-.section--alt { background: var(--color-bg-alt); }
+/* Sections no longer carry solid fills — the fixed cinematic photo
+   behind the page provides continuity. --alt / --deep add just
+   enough of a translucent scrim to create rhythm between sections
+   without blocking the background. */
+.section--alt {
+  background: linear-gradient(180deg, rgba(15,18,11,0.16), rgba(15,18,11,0.05) 60%, rgba(15,18,11,0.16));
+}
 .section--deep {
-  background: var(--sage-800);
+  background: var(--glass-dark-bg-strong);
+  backdrop-filter: var(--glass-blur-sm);
+  -webkit-backdrop-filter: var(--glass-blur-sm);
   color: var(--cream);
+  border-block: 1px solid var(--glass-dark-border);
 }
 .section--deep h2, .section--deep h3 { color: var(--white); }
 .section--deep p { color: var(--sage-200); }
@@ -262,10 +353,21 @@ p + p { margin-top: var(--space-sm); }
 
 .btn--outline {
   --btn-bg: transparent;
+  --btn-fg: var(--white);
+  border-color: rgba(255, 255, 255, 0.55);
+}
+.btn--outline:hover { --btn-bg: var(--white); --btn-fg: var(--sage-800); border-color: var(--white); }
+/* Inside a light-glass card, outline buttons need dark ink instead
+   of the on-background light default. */
+.card .btn--outline,
+.method .btn--outline,
+.action-tile .btn--outline {
   --btn-fg: var(--color-brand-dark);
   border-color: currentColor;
 }
-.btn--outline:hover { --btn-bg: var(--sage-800); --btn-fg: var(--white); border-color: var(--sage-800); }
+.card .btn--outline:hover,
+.method .btn--outline:hover,
+.action-tile .btn--outline:hover { --btn-bg: var(--sage-800); --btn-fg: var(--white); border-color: var(--sage-800); }
 
 .btn--ghost-light {
   --btn-bg: transparent;
@@ -281,13 +383,26 @@ p + p { margin-top: var(--space-sm); }
   align-items: center;
   gap: var(--space-3xs);
   font-weight: 700;
-  color: var(--color-brand-dark);
+  color: var(--white);
   border-bottom: 2px solid var(--color-accent);
   padding-bottom: 2px;
+  text-shadow: 0 2px 10px rgba(10,12,7,0.35);
   transition: gap var(--dur-fast) var(--ease-out), color var(--dur-fast) var(--ease-out);
 }
-.link-inline:hover { gap: var(--space-2xs); color: var(--color-accent-dark); }
+.link-inline:hover { gap: var(--space-2xs); color: var(--amber-400); }
 .link-inline svg { width: 16px; height: 16px; }
+/* Dark ink inside light-glass cards instead of the on-background default. */
+.card .link-inline,
+.method .link-inline,
+.action-tile .link-inline,
+.media-card .link-inline {
+  color: var(--color-brand-dark);
+  text-shadow: none;
+}
+.card .link-inline:hover,
+.method .link-inline:hover,
+.action-tile .link-inline:hover,
+.media-card .link-inline:hover { color: var(--color-accent-dark); }
 
 /* ===========================================================
    Icons
@@ -328,8 +443,9 @@ p + p { margin-top: var(--space-sm); }
   position: absolute;
   inset: 0;
   z-index: -1;
-  background: rgba(250, 243, 231, 0.9);
-  backdrop-filter: blur(10px);
+  background: var(--glass-dark-bg);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
 }
 .site-header__bar {
   display: flex;
@@ -351,14 +467,14 @@ p + p { margin-top: var(--space-sm); }
   font-size: 1.15rem;
   font-weight: 800;
   letter-spacing: 0.06em;
-  color: var(--sage-800);
+  color: var(--white);
 }
 .brand__word span {
   display: block;
   font-size: 0.62rem;
   font-weight: 600;
   letter-spacing: 0.24em;
-  color: var(--sage-500);
+  color: var(--sage-200);
   margin-top: 2px;
 }
 
@@ -372,7 +488,7 @@ p + p { margin-top: var(--space-sm); }
   position: relative;
   font-weight: 600;
   font-size: var(--step--1);
-  color: var(--color-text-soft);
+  color: var(--sage-100);
   padding-block: var(--space-2xs);
 }
 .nav__list a::after {
@@ -387,14 +503,14 @@ p + p { margin-top: var(--space-sm); }
 }
 .nav__list a:hover::after,
 .nav__list a[aria-current="page"]::after { right: 0; }
-.nav__list a[aria-current="page"] { color: var(--sage-800); }
+.nav__list a[aria-current="page"] { color: var(--white); }
 
 .nav__toggle {
   display: none;
   background: none;
   border: none;
   width: 44px; height: 44px;
-  color: var(--sage-800);
+  color: var(--white);
 }
 .nav__toggle svg { width: 26px; height: 26px; }
 
@@ -404,14 +520,17 @@ p + p { margin-top: var(--space-sm); }
     position: fixed;
     inset: 0 0 0 auto;
     width: min(340px, 86vw);
-    background: var(--cream);
+    background: var(--glass-dark-bg-strong);
+    backdrop-filter: var(--glass-blur);
+    -webkit-backdrop-filter: var(--glass-blur);
+    border-left: 1px solid var(--glass-dark-border);
     flex-direction: column;
     align-items: stretch;
     padding: var(--space-xl) var(--space-lg);
     gap: var(--space-lg);
     transform: translateX(100%);
     transition: transform var(--dur-med) var(--ease-out);
-    box-shadow: var(--shadow-lift);
+    box-shadow: var(--shadow-glass);
   }
   .nav.is-open { transform: translateX(0); }
   .nav__list { flex-direction: column; gap: var(--space-md); }
@@ -473,10 +592,13 @@ p + p { margin-top: var(--space-sm); }
   position: absolute;
   bottom: var(--space-md);
   left: var(--space-md);
-  background: var(--white);
+  background: var(--glass-light-bg);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
+  border: 1px solid var(--glass-light-border);
   border-radius: var(--radius-md);
   padding: var(--space-sm) var(--space-md);
-  box-shadow: var(--shadow-lift);
+  box-shadow: var(--shadow-glass);
   display: flex;
   align-items: center;
   gap: var(--space-sm);
@@ -493,19 +615,26 @@ p + p { margin-top: var(--space-sm); }
 }
 
 /* ===========================================================
-   Cards
+   Cards — frosted "light glass" panels riding over the cinematic
+   background. Text inside is pinned back to dark (overriding the
+   light-on-background defaults above) since these panels are
+   opaque enough to guarantee contrast regardless of what photo
+   is behind them.
    =========================================================== */
 .card {
-  background: var(--color-surface);
+  background: var(--glass-light-bg);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
+  border: 1px solid var(--glass-light-border);
   border-radius: var(--radius-md);
   padding: var(--space-lg);
-  box-shadow: var(--shadow-soft);
-  transition: transform var(--dur-med) var(--ease-out), box-shadow var(--dur-med) var(--ease-out);
+  box-shadow: var(--shadow-glass);
+  transition: transform var(--dur-med) var(--ease-out), box-shadow var(--dur-med) var(--ease-out), background var(--dur-med) var(--ease-out);
 }
-.card:hover { transform: translateY(-6px); box-shadow: var(--shadow-lift); }
+.card:hover { transform: translateY(-6px) scale(1.01); box-shadow: 0 28px 60px rgba(15,18,10,0.32); background: var(--white); }
 .card:hover .icon-badge { transform: rotate(-6deg) scale(1.05); }
-.card h3, .card h4 { margin-bottom: var(--space-2xs); }
-.card p { margin-top: var(--space-2xs); }
+.card h3, .card h4 { margin-bottom: var(--space-2xs); color: var(--sage-800); text-shadow: none; }
+.card p { margin-top: var(--space-2xs); color: var(--ink-soft); text-shadow: none; }
 .card .icon-badge { margin-bottom: var(--space-md); }
 
 .card--work { display: flex; flex-direction: column; }
@@ -524,16 +653,19 @@ p + p { margin-top: var(--space-sm); }
    Project / story cards
    =========================================================== */
 .media-card {
-  background: var(--color-surface);
+  background: var(--glass-light-bg);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
+  border: 1px solid var(--glass-light-border);
   border-radius: var(--radius-md);
   overflow: hidden;
-  box-shadow: var(--shadow-soft);
+  box-shadow: var(--shadow-glass);
   transition: transform var(--dur-med) var(--ease-out), box-shadow var(--dur-med) var(--ease-out);
   display: flex;
   flex-direction: column;
   height: 100%;
 }
-.media-card:hover { transform: translateY(-6px); box-shadow: var(--shadow-lift); }
+.media-card:hover { transform: translateY(-6px) scale(1.01); box-shadow: 0 28px 60px rgba(15,18,10,0.32); }
 .media-card__figure {
   aspect-ratio: 4/3;
   background: linear-gradient(150deg, var(--sage-200), var(--cream-deep));
@@ -541,10 +673,12 @@ p + p { margin-top: var(--space-sm); }
   overflow: hidden;
 }
 .media-card__figure img { width: 100%; height: 100%; object-fit: cover; transition: transform var(--dur-slow) var(--ease-out); }
-.media-card:hover .media-card__figure img { transform: scale(1.06); }
+.media-card:hover .media-card__figure img { transform: scale(1.08); }
 .media-card__tag {
   position: absolute; top: var(--space-sm); left: var(--space-sm);
-  background: var(--white);
+  background: var(--glass-light-bg);
+  backdrop-filter: var(--glass-blur-sm);
+  -webkit-backdrop-filter: var(--glass-blur-sm);
   color: var(--sage-800);
   font-size: 0.72rem;
   font-weight: 700;
@@ -555,8 +689,8 @@ p + p { margin-top: var(--space-sm); }
 }
 .media-card__body { padding: var(--space-md); display: flex; flex-direction: column; gap: var(--space-2xs); flex: 1; }
 .media-card__meta { font-size: 0.8rem; color: var(--color-brand); font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase; }
-.media-card__body h3 { font-size: var(--step-1); }
-.media-card__body p { flex: 1; }
+.media-card__body h3 { font-size: var(--step-1); color: var(--sage-800); text-shadow: none; }
+.media-card__body p { flex: 1; color: var(--ink-soft); text-shadow: none; }
 
 .placeholder-figure {
   width: 100%; height: 100%;
@@ -590,14 +724,19 @@ p + p { margin-top: var(--space-sm); }
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   gap: 1px;
-  background: var(--color-border);
+  background: var(--glass-dark-border);
   border-radius: var(--radius-md);
   overflow: hidden;
+  box-shadow: var(--shadow-glass);
 }
 .values-strip__item {
-  background: var(--color-surface);
+  background: var(--glass-light-bg);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
   padding: var(--space-lg) var(--space-md);
 }
+.values-strip__item h4 { color: var(--sage-800); text-shadow: none; }
+.values-strip__item p { color: var(--ink-soft); text-shadow: none; }
 @media (max-width: 900px) { .values-strip { grid-template-columns: repeat(2, 1fr); } }
 @media (max-width: 560px) { .values-strip { grid-template-columns: 1fr; } }
 
@@ -607,11 +746,15 @@ p + p { margin-top: var(--space-sm); }
 .banner {
   position: relative;
   border-radius: var(--radius-lg);
-  background: var(--sage-800);
+  background: var(--glass-dark-bg-strong);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
+  border: 1px solid var(--glass-dark-border);
   color: var(--cream);
   padding: var(--space-2xl) var(--space-lg);
   text-align: center;
   overflow: hidden;
+  box-shadow: var(--shadow-glass);
 }
 .banner::before {
   content: "";
@@ -632,15 +775,20 @@ p + p { margin-top: var(--space-sm); }
   gap: var(--space-sm);
   padding: var(--space-lg);
   border-radius: var(--radius-md);
-  border: 1px solid var(--color-border);
-  background: var(--color-surface);
+  border: 1px solid var(--glass-light-border);
+  background: var(--glass-light-bg);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
+  box-shadow: var(--shadow-glass);
   transition: transform var(--dur-med) var(--ease-out), border-color var(--dur-med) var(--ease-out), box-shadow var(--dur-med) var(--ease-out);
   height: 100%;
 }
+.action-tile h4 { color: var(--sage-800); text-shadow: none; }
+.action-tile p { color: var(--ink-soft); text-shadow: none; }
 .action-tile:hover {
-  transform: translateY(-6px);
+  transform: translateY(-6px) scale(1.01);
   border-color: var(--color-accent);
-  box-shadow: var(--shadow-lift);
+  box-shadow: 0 28px 60px rgba(15,18,10,0.32);
 }
 .action-tile__foot { margin-top: auto; padding-top: var(--space-sm); }
 
@@ -679,8 +827,17 @@ p + p { margin-top: var(--space-sm); }
 /* ===========================================================
    FAQ accordion
    =========================================================== */
-.faq { border-top: 1px solid var(--color-border); }
-.faq__item { border-bottom: 1px solid var(--color-border); }
+.faq {
+  background: var(--glass-light-bg);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
+  border: 1px solid var(--glass-light-border);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-glass);
+  padding-inline: var(--space-lg);
+}
+.faq__item { border-bottom: 1px solid rgba(43,51,31,0.12); }
+.faq__item:last-child { border-bottom: none; }
 .faq__q {
   width: 100%;
   display: flex;
@@ -698,6 +855,7 @@ p + p { margin-top: var(--space-sm); }
 .faq__q svg { width: 22px; height: 22px; flex-shrink: 0; transition: transform var(--dur-med) var(--ease-out); color: var(--color-brand); }
 .faq__item[open] .faq__q svg { transform: rotate(180deg); }
 .faq__a { padding-bottom: var(--space-md); max-width: 68ch; }
+.faq__a p { color: var(--ink-soft); text-shadow: none; }
 .faq__item summary { list-style: none; }
 .faq__item summary::-webkit-details-marker { display: none; }
 
@@ -782,11 +940,16 @@ p + p { margin-top: var(--space-sm); }
   gap: var(--space-md);
   align-items: flex-start;
   padding: var(--space-md);
-  border: 1px solid var(--color-border);
+  border: 1px solid var(--glass-light-border);
   border-radius: var(--radius-md);
-  background: var(--color-surface);
+  background: var(--glass-light-bg);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
+  box-shadow: var(--shadow-glass);
 }
-.method h4 { margin-bottom: var(--space-3xs); }
+.method h4 { margin-bottom: var(--space-3xs); color: var(--sage-800); text-shadow: none; }
+.method p { color: var(--ink-soft); text-shadow: none; }
+.method a.link-inline { color: var(--color-brand-dark); }
 
 /* ===========================================================
    Sticky donate bar
@@ -895,8 +1058,7 @@ p + p { margin-top: var(--space-sm); }
 }
 .page-hero .eyebrow { margin-bottom: var(--space-sm); }
 .page-hero h1 { max-width: 18ch; }
-.breadcrumb { display: flex; gap: var(--space-2xs); font-size: 0.85rem; color: var(--color-text-soft); margin-bottom: var(--space-md); }
-.breadcrumb a:hover { color: var(--color-brand); }
+.breadcrumb { display: flex; gap: var(--space-2xs); font-size: 0.85rem; margin-bottom: var(--space-md); }
 
 /* ===========================================================
    Map / location
@@ -943,7 +1105,10 @@ p + p { margin-top: var(--space-sm); }
   z-index: -1;
   background: linear-gradient(180deg, rgba(35,43,28,0.08) 0%, rgba(35,43,28,0.82) 100%);
 }
-.photo-card:hover { transform: translateY(-6px); box-shadow: var(--shadow-lift); }
+.photo-card {
+  border: 1px solid rgba(255,255,255,0.22);
+}
+.photo-card:hover { transform: translateY(-6px) scale(1.01); box-shadow: 0 28px 60px rgba(15,18,10,0.35); }
 .photo-card:hover img { transform: scale(1.07); }
 .photo-card .icon-badge {
   background: rgba(250,243,231,0.18);
@@ -964,60 +1129,100 @@ p + p { margin-top: var(--space-sm); }
 }
 
 /* ===========================================================
-   Carousel (Gallery) — native scroll-snap, no JS dependency
-   for core function; arrow buttons are a progressive enhancement
+   Polaroid Shuffle carousel — an automatic, clickable fan of
+   polaroid-style photos. JS (main.js) computes each item's
+   translate/rotate/scale/opacity from its offset to the active
+   index and writes it as an inline transform; this file only
+   supplies the resting look and the transition.
    =========================================================== */
-.carousel-wrap { position: relative; }
-.carousel {
-  display: flex;
-  gap: var(--space-md);
-  overflow-x: auto;
-  scroll-snap-type: x mandatory;
-  scroll-padding-left: var(--space-md);
-  padding: var(--space-3xs) var(--space-md) var(--space-md);
-  margin: 0 calc(var(--space-md) * -1);
-  -webkit-overflow-scrolling: touch;
-}
-.carousel__item {
-  flex: 0 0 auto;
-  width: min(320px, 74vw);
-  scroll-snap-align: start;
+.polaroid-carousel {
   position: relative;
-  border-radius: var(--radius-md);
+  padding-block: var(--space-md) var(--space-sm);
+}
+.polaroid-stage {
+  position: relative;
+  height: 440px;
+  margin-inline: auto;
+  max-width: 100%;
+}
+.polaroid-stage:focus-visible { outline: none; }
+.polaroid {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 250px;
+  padding: 14px 14px 46px;
+  background: var(--white);
+  border: none;
+  border-radius: 4px;
+  box-shadow: 0 18px 40px rgba(10,12,7,0.35);
+  cursor: pointer;
+  transition: transform 700ms var(--ease-cinematic), opacity 700ms var(--ease-cinematic), box-shadow var(--dur-med) var(--ease-out);
+  will-change: transform, opacity;
+}
+.polaroid:focus-visible { outline: 3px solid var(--amber-400); outline-offset: 4px; }
+.polaroid__photo {
+  display: block;
+  aspect-ratio: 1/1;
   overflow: hidden;
-  aspect-ratio: 4/5;
-  box-shadow: var(--shadow-soft);
+  border-radius: 2px;
+  background: var(--sage-100);
 }
-.carousel__item img {
-  width: 100%; height: 100%; object-fit: cover;
-  transition: transform var(--dur-slow) var(--ease-out);
+.polaroid__photo img { width: 100%; height: 100%; object-fit: cover; }
+.polaroid__caption {
+  position: absolute;
+  left: 0; right: 0; bottom: 12px;
+  text-align: center;
+  font-family: var(--font-display);
+  font-size: 1.05rem;
+  color: var(--sage-800);
+  opacity: 0;
+  transition: opacity var(--dur-med) var(--ease-out);
 }
-.carousel__item:hover img { transform: scale(1.06); }
-.carousel__caption {
-  position: absolute; left: 0; right: 0; bottom: 0;
-  padding: var(--space-md);
-  background: linear-gradient(to top, rgba(35,43,28,0.78), transparent);
-  color: var(--white);
-  font-weight: 700;
-  font-size: var(--step--1);
+.polaroid.is-active {
+  box-shadow: 0 34px 70px rgba(10,12,7,0.5);
+  cursor: default;
 }
-.carousel__controls {
+.polaroid.is-active .polaroid__caption { opacity: 1; }
+.polaroid-carousel__controls {
   display: flex;
-  justify-content: flex-end;
-  gap: var(--space-2xs);
-  margin-top: calc(var(--space-sm) * -1);
-  margin-bottom: var(--space-md);
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-md);
+  margin-top: var(--space-sm);
 }
+.polaroid-dots { display: flex; gap: 8px; }
+.polaroid-dots button {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.4);
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  transition: background var(--dur-fast) var(--ease-out), transform var(--dur-fast) var(--ease-out);
+}
+.polaroid-dots button.is-active { background: var(--amber-400); transform: scale(1.35); }
+
+@media (max-width: 640px) {
+  .polaroid-stage { height: 340px; }
+  .polaroid { width: 190px; padding: 10px 10px 36px; }
+  .polaroid__caption { font-size: 0.92rem; bottom: 8px; }
+}
+
+/* Shared round icon-button used by the polaroid controls */
 .carousel__btn {
   width: 46px; height: 46px;
   border-radius: 50%;
-  background: var(--white);
-  border: 1px solid var(--color-border);
+  background: var(--glass-light-bg);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
+  border: 1px solid var(--glass-light-border);
   display: grid;
   place-items: center;
-  box-shadow: var(--shadow-soft);
+  box-shadow: var(--shadow-glass);
   color: var(--sage-800);
   transition: background var(--dur-fast) var(--ease-out), color var(--dur-fast) var(--ease-out), transform var(--dur-fast) var(--ease-out);
+  flex-shrink: 0;
 }
 .carousel__btn:hover { background: var(--sage-800); color: var(--white); transform: translateY(-2px); }
 .carousel__btn svg { width: 20px; height: 20px; }
