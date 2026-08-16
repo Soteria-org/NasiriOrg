@@ -88,20 +88,22 @@
 
   --content-max: 1200px;
 
-  /* ---- Glassmorphism ----
-     Two tiers: "light" glass hosts dark body text (forms, value
-     cards, anything text-heavy) and stays opaque enough to pass
-     contrast checks over any photo. "Dark" glass hosts light text
-     (nav, banners) and stays more translucent. ---- */
-  --glass-light-bg:      rgba(255, 255, 255, 0.82);
-  --glass-light-bg-soft: rgba(255, 255, 255, 0.5);
-  --glass-light-border:  rgba(255, 255, 255, 0.65);
-  --glass-dark-bg:       rgba(30, 36, 24, 0.42);
-  --glass-dark-bg-strong: rgba(24, 29, 19, 0.62);
-  --glass-dark-border:   rgba(255, 255, 255, 0.16);
-  --glass-blur: blur(20px) saturate(160%);
-  --glass-blur-sm: blur(12px) saturate(140%);
-  --shadow-glass: 0 20px 50px rgba(15, 18, 10, 0.28);
+  /* ---- Card surface tokens ----
+     Solid, calm panels — no backdrop-filter. An earlier pass tried
+     heavy frosted-glass blur over a full photo background and it
+     read as shaky/noisy with poor card contrast, so the background
+     is now a solid warm color with only a faint trace of photo
+     showing through (see .page-bg), and panels are back to solid,
+     cheap-to-render surfaces close to the original design. ---- */
+  --glass-light-bg:      var(--white);
+  --glass-light-bg-soft: var(--cream-alt);
+  --glass-light-border:  var(--sage-200);
+  --glass-dark-bg:       var(--cream);
+  --glass-dark-bg-strong: var(--sage-800);
+  --glass-dark-border:   rgba(255, 255, 255, 0.14);
+  --glass-blur: none;
+  --glass-blur-sm: none;
+  --shadow-glass: var(--shadow-soft);
 }
 
 /* View Transitions API: cinematic cross-fade between page loads
@@ -164,56 +166,49 @@ body {
      file's location), not the HTML document, which 404s the image
      the moment this file isn't sitting next to /assets/. Setting it
      as a real inline style resolves correctly against the page. */
+  background-color: var(--cream);
   background-size: cover;
   background-position: center 22%;
   background-repeat: no-repeat;
   opacity: 0;
   animation: pageBgIn var(--dur-cinematic) var(--ease-cinematic) forwards;
 }
+/* A near-opaque warm scrim keeps the page reading as a calm, solid
+   surface — the photo underneath shows through only as a faint
+   trace of color and shape, not a busy full backdrop. This was a
+   direct response to feedback that a full-strength blurred photo
+   behind every section felt noisy and hurt card contrast. */
 .page-bg::after {
   content: "";
   position: absolute;
   inset: 0;
-  background:
-    linear-gradient(180deg, rgba(20,24,15,0.6) 0%, rgba(20,24,15,0.32) 22%, rgba(20,24,15,0.4) 70%, rgba(15,18,11,0.72) 100%);
+  background: var(--cream);
+  opacity: 0.86;
 }
 @keyframes pageBgIn {
-  from { opacity: 0; transform: scale(1.04); }
-  to   { opacity: 1; transform: scale(1); }
+  from { opacity: 0; }
+  to   { opacity: 1; }
 }
 @media (prefers-reduced-motion: reduce) {
-  .page-bg { animation: none; opacity: 1; transform: none; }
+  .page-bg { animation: none; opacity: 1; }
 }
 
-/* Text sitting directly on the cinematic background (the default,
-   since most headings and ledes float over the photo rather than
-   inside a glass panel) stays light + legible over any photo.
-   Glass-panel components (.card, .method, form fields, etc.)
-   override these back to dark text further down — their higher
-   selector specificity wins the cascade without needing an extra
-   class on every heading in the markup. */
-.breadcrumb { color: var(--sage-200); }
-.breadcrumb a:hover { color: var(--white); }
+.breadcrumb { color: var(--ink-soft); }
+.breadcrumb a:hover { color: var(--color-brand); }
 
-/* Headings/paragraphs default to riding directly on the cinematic
-   background (light text, soft shadow for legibility over any
-   photo). Glass-panel components override back to dark text —
-   see the Glassmorphism section — since their selectors are more
-   specific and win the cascade. */
 h1, h2, h3, h4 {
   font-family: var(--font-display);
-  color: var(--white);
+  color: var(--sage-800);
   line-height: 1.12;
   font-weight: 400;
   letter-spacing: -0.01em;
-  text-shadow: 0 4px 24px rgba(10, 12, 7, 0.4);
 }
 h1 { font-size: var(--step-5); }
 h2 { font-size: var(--step-4); }
 h3 { font-size: var(--step-2); }
-h4 { font-size: var(--step-1); font-family: var(--font-body); font-weight: 700; text-shadow: none; }
+h4 { font-size: var(--step-1); font-family: var(--font-body); font-weight: 700; }
 
-p { color: var(--sage-100); }
+p { color: var(--color-text-soft); }
 p + p { margin-top: var(--space-sm); }
 
 .eyebrow {
@@ -225,7 +220,7 @@ p + p { margin-top: var(--space-sm); }
   font-size: var(--step--1);
   letter-spacing: 0.14em;
   text-transform: uppercase;
-  color: var(--amber-400);
+  color: var(--color-accent-dark);
   margin-bottom: var(--space-sm);
 }
 .eyebrow::before {
@@ -238,9 +233,8 @@ p + p { margin-top: var(--space-sm); }
 
 .lede {
   font-size: var(--step-1);
-  color: var(--sage-100);
+  color: var(--color-text-soft);
   max-width: 62ch;
-  text-shadow: 0 2px 14px rgba(10, 12, 7, 0.3);
 }
 
 .visually-hidden {
@@ -285,7 +279,7 @@ p + p { margin-top: var(--space-sm); }
    enough of a translucent scrim to create rhythm between sections
    without blocking the background. */
 .section--alt {
-  background: linear-gradient(180deg, rgba(15,18,11,0.16), rgba(15,18,11,0.05) 60%, rgba(15,18,11,0.16));
+  background: linear-gradient(180deg, rgba(232,217,192,0.55), rgba(232,217,192,0.2) 60%, rgba(232,217,192,0.55));
 }
 .section--deep {
   background: var(--glass-dark-bg-strong);
@@ -353,21 +347,10 @@ p + p { margin-top: var(--space-sm); }
 
 .btn--outline {
   --btn-bg: transparent;
-  --btn-fg: var(--white);
-  border-color: rgba(255, 255, 255, 0.55);
-}
-.btn--outline:hover { --btn-bg: var(--white); --btn-fg: var(--sage-800); border-color: var(--white); }
-/* Inside a light-glass card, outline buttons need dark ink instead
-   of the on-background light default. */
-.card .btn--outline,
-.method .btn--outline,
-.action-tile .btn--outline {
   --btn-fg: var(--color-brand-dark);
   border-color: currentColor;
 }
-.card .btn--outline:hover,
-.method .btn--outline:hover,
-.action-tile .btn--outline:hover { --btn-bg: var(--sage-800); --btn-fg: var(--white); border-color: var(--sage-800); }
+.btn--outline:hover { --btn-bg: var(--sage-800); --btn-fg: var(--white); border-color: var(--sage-800); }
 
 .btn--ghost-light {
   --btn-bg: transparent;
@@ -383,26 +366,13 @@ p + p { margin-top: var(--space-sm); }
   align-items: center;
   gap: var(--space-3xs);
   font-weight: 700;
-  color: var(--white);
+  color: var(--color-brand-dark);
   border-bottom: 2px solid var(--color-accent);
   padding-bottom: 2px;
-  text-shadow: 0 2px 10px rgba(10,12,7,0.35);
   transition: gap var(--dur-fast) var(--ease-out), color var(--dur-fast) var(--ease-out);
 }
-.link-inline:hover { gap: var(--space-2xs); color: var(--amber-400); }
+.link-inline:hover { gap: var(--space-2xs); color: var(--color-accent-dark); }
 .link-inline svg { width: 16px; height: 16px; }
-/* Dark ink inside light-glass cards instead of the on-background default. */
-.card .link-inline,
-.method .link-inline,
-.action-tile .link-inline,
-.media-card .link-inline {
-  color: var(--color-brand-dark);
-  text-shadow: none;
-}
-.card .link-inline:hover,
-.method .link-inline:hover,
-.action-tile .link-inline:hover,
-.media-card .link-inline:hover { color: var(--color-accent-dark); }
 
 /* ===========================================================
    Icons
@@ -433,9 +403,9 @@ p + p { margin-top: var(--space-sm); }
   z-index: 100;
   border-bottom: 1px solid rgba(43, 51, 31, 0.08);
 }
-/* backdrop-filter lives on a pseudo-element rather than .site-header
-   itself, because filter/backdrop-filter on an element makes it the
-   containing block for fixed-position descendants — which would trap
+/* Solid fill lives on a pseudo-element rather than .site-header
+   itself so a future backdrop-filter here can't make the header the
+   containing block for fixed-position descendants — that would trap
    the fixed-position mobile nav drawer inside the header's own box
    instead of letting it cover the full viewport. */
 .site-header::before {
@@ -443,9 +413,7 @@ p + p { margin-top: var(--space-sm); }
   position: absolute;
   inset: 0;
   z-index: -1;
-  background: var(--glass-dark-bg);
-  backdrop-filter: var(--glass-blur);
-  -webkit-backdrop-filter: var(--glass-blur);
+  background: var(--cream);
 }
 .site-header__bar {
   display: flex;
@@ -467,14 +435,14 @@ p + p { margin-top: var(--space-sm); }
   font-size: 1.15rem;
   font-weight: 800;
   letter-spacing: 0.06em;
-  color: var(--white);
+  color: var(--sage-800);
 }
 .brand__word span {
   display: block;
   font-size: 0.62rem;
   font-weight: 600;
   letter-spacing: 0.24em;
-  color: var(--sage-200);
+  color: var(--sage-500);
   margin-top: 2px;
 }
 
@@ -488,7 +456,7 @@ p + p { margin-top: var(--space-sm); }
   position: relative;
   font-weight: 600;
   font-size: var(--step--1);
-  color: var(--sage-100);
+  color: var(--ink-soft);
   padding-block: var(--space-2xs);
 }
 .nav__list a::after {
@@ -503,14 +471,14 @@ p + p { margin-top: var(--space-sm); }
 }
 .nav__list a:hover::after,
 .nav__list a[aria-current="page"]::after { right: 0; }
-.nav__list a[aria-current="page"] { color: var(--white); }
+.nav__list a[aria-current="page"] { color: var(--sage-800); }
 
 .nav__toggle {
   display: none;
   background: none;
   border: none;
   width: 44px; height: 44px;
-  color: var(--white);
+  color: var(--sage-800);
 }
 .nav__toggle svg { width: 26px; height: 26px; }
 
@@ -520,17 +488,15 @@ p + p { margin-top: var(--space-sm); }
     position: fixed;
     inset: 0 0 0 auto;
     width: min(340px, 86vw);
-    background: var(--glass-dark-bg-strong);
-    backdrop-filter: var(--glass-blur);
-    -webkit-backdrop-filter: var(--glass-blur);
-    border-left: 1px solid var(--glass-dark-border);
+    background: var(--cream);
+    border-left: 1px solid var(--color-border);
     flex-direction: column;
     align-items: stretch;
     padding: var(--space-xl) var(--space-lg);
     gap: var(--space-lg);
     transform: translateX(100%);
     transition: transform var(--dur-med) var(--ease-out);
-    box-shadow: var(--shadow-glass);
+    box-shadow: var(--shadow-lift);
   }
   .nav.is-open { transform: translateX(0); }
   .nav__list { flex-direction: column; gap: var(--space-md); }
